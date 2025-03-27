@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projects</title>
+    <link rel="stylesheet" href="/css/main.css" />
+  </head>
+  <body>
+    <%- include('partials/navbar', {page:'/solutions/projects'}) %>
+
+    <div class="container mx-auto">
+      <div class="grid grid-cols-1 mb-4">
+        <div class="hero min-h-72 bg-neutral-800 rounded-2xl mt-4">
+          <div class="hero-content text-center">
+            <div class="max-w-md">
+              <h1 class="text-5xl font-bold">Projects</h1>
+              <h4 class="pt-3">Browse the current list of Projects in our database. Click the theme to filter by sectors such as:</h4>
+              <br>
+              <a href="/solutions/projects?sector=Industry" class="btn btn-primary btn-xs m-2" 
+              >Industry</a>
+              <a href="/solutions/projects?sector=Transportation" class="btn btn-primary btn-xs">Transportation</a>
+              <a href="/solutions/projects?sector=Electricity" class="btn btn-primary btn-xs m-2">Electricity</a>
+            </div>
+          </div>
+        </div>
+        
+        <br>
+
+        <div class="overflow-x-auto scroll-smooth">
+            <table class="table">
+              
+              <tbody>
+              
+                <% for (let project of projects) { %>
+                <tr class="p-2 <%= (project.id % 2==0) ? 'bg-neutral-800' : '' %>">
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div>
+                        <div class="font-bold text-white "><%= project.title %></div>
+                      </div>
+                    </div>
+                  </td>
+                  <th>
+                    <a class="btn btn-soft btn-xs"
+                    href="/solutions/projects?sector=<%=project.Sector.sector_name%>"><%= project.Sector.sector_name %></button>
+                  </th>
+                  <td><%= project.summary_short %></td>
+                  <th>
+                    <a class="btn btn-soft btn-xs"
+                    href="/solutions/projects/<%=project.id%>">details</button>
+                  </th>
+                </tr>
+               <% } %>
+              </tbody>
+              
+              
+            </table>
+          </div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    
+  </head>
+  <body>
+    <%- include('partials/navbar', {page:''}) %>
+
+  <!--container-->
+    <div class="container mx-auto">
+      <div class="grid grid-cols-1 mb-4">
+        <div class="hero min-h-72 bg-neutral-800 rounded-2xl mt-4">
+          <div class="hero-content text-center">
+            <div class="max-w-md">
+              <h1 class="text-5xl font-bold"><%= project.title %></h1>
+              <p class="py-6">Below is all the information about the project: <%= project.title %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+        <div>
+          <img
+            src="<%= project.feature_img_url %>"
+            class="rounded-xl shadow-2xl"
+            alt="about_windhorses"
+          />
+        </div>
+
+        <div class="prose">
+          <p>
+            <%= project.intro_short %>
+          </p>
+          <h4 class="pb-3 font-bold">Impact:</h4>
+          <p>
+            <%= project.impact %>
+          </p>
+          <h4  class="pb-3 font-bold">More Information:</h4>
+          <% let url=project.original_source_url %>
+          <a href="<%= url %>"><%= url %></a>
+
+          
+          <p class="quote">Brewing Quote...</p>
+          <div class="author text-sm italic"></div>
+
+          <p>
+            <a class="btn btn-outline btn-sm" href="#" onclick="history.back(); return false;">RETURN</a>
+          </p>
+          <br>
+    </div>
+
+    <script>  
+        document.addEventListener("DOMContentLoaded",  ()=>{
+     
+        fetch("https://dummyjson.com/quotes/random")
+        .then((response) => response.json()).then((data) => {
+            document.querySelector(".quote").textContent = `"${data.quote}"`;
+            document.querySelector(".author").textContent = `- "${data.author}"`;
+            }).catch((err) => {
+                console.log(`The url returned: ${err}`);
+            })
+
+        });
+ 
+    </script>
+    
+  </body>
+</html>

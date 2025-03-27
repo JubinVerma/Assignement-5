@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Climate Solutions</title>
+    <link href="/css/main.css" rel="stylesheet">
+    <style>
+        video {
+            width: 100%; 
+            max-width: 400px; 
+            height: auto; 
+            display: block;
+            margin: 0 auto; 
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/navbar', {page:'/about'}) %>
+    <div class="container mx-auto p-6">
+        <div class="hero bg-base-200 p-10 rounded-lg text-center">
+            <h1 class="text-4xl font-bold">About</h1>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 items-center">
+            <div>
+                <video autoplay loop  playsinline class="rounded-lg shadow-lg">
+                    <source src="/media/THEPERFECTDUEL.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div>
+                <p class="text-lg">Hey, this is Jubin Verma, and this is my Assignment 3 ABOUT page. I am not too sure what to write in this, but here it is. Let me tell you something about the hardest game I have ever played, called Sekiro: Shadows Die Twice. I attached a small video to the left for you. Keeping this short, it involves the incredible mix of combat that makes you feel like you are actually fighting, an in-depth story of a samurai protecting his young master in whom the blood of immortality flows, and the final battle against Isshin the Sword Saint—a moment of pure bliss as he is the hardest boss in the game.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

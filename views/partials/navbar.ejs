@@ -1,0 +1,30 @@
+<div class="navbar bg-base-100">
+    <div class="flex-1">
+      <a class="btn btn-ghost text-xl" href="/">Climate Solutions</a>
+    </div>
+    <div class="flex-none gap-2"> 
+      <% if (showSearchBar) { %>
+      <div class="form-control">
+        <form action="/solutions/projects" method="get">
+        <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" name="sector"/>
+        </form>
+      </div>
+      <% } %>
+      
+    <div class="navbar-center hidden sm:flex gap-2">
+        <ul tabindex="0" class="menu menu-horizontal bg-base-100 z-[1] w-26 py-2 pl-2 pr-0 shadow">
+                <li>
+                  <a href="/solutions/addProject" class="<%= (page == '/solutions/addProject') ? 'active' : '' %>" >Add Project</a>
+               </li>
+                <li>
+                  <a href="/solutions/projects" class="<%= (page == '/solutions/projects') ? 'active': '' %>" >View Projects</a> 
+                </li>
+                
+                <li>
+                  <a href="/about" class="<%= (page == '/about') ? 'active': '' %>" >About</a>                
+                </li>
+          </ul>
+    </div>
+</div>
+</div>
+</div>

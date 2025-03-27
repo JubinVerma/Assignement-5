@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Project</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body class="bg-black font-serif text-white">
+    <!-- Include the navbar partial -->
+    <%- include('partials/navbar', { page: '/solutions/addProject' }) %>
+
+    <!-- Hero Section -->
+    <div class="container mx-auto m-5 p-9">
+        <div class="hero h-[60vh]">
+            <div class="hero-overlay bg-opacity-40"></div>
+            <div class="hero-content text-neutral-content text-center">
+                <div class="max-w-md relative">
+                    <h1 class="mb-5 text-8xl font-bold">
+                        Add Project
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Form Section -->
+     <!-- creating a form to add the projects that matches the website design-->
+    <div class="container mx-auto p-9">
+        <form action="/solutions/addProject" method="POST" class="space-y-6">
+            <!-- Title -->
+            <div>
+                <label for="title" class="block text-sm font-medium text-white">Title</label>
+                <input type="text" id="title" name="title" required
+                    class="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md text-white">
+            </div>
+
+            <!-- Feature Image URL -->
+            <div>
+                <label for="feature_img_url" class="block text-sm font-medium text-white">Feature Image URL</label>
+                <input type="url" id="feature_img_url" name="feature_img_url" required
+                    class="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md text-white">
+            </div>
+
+            <!-- Sector ID -->
+            <div>
+                <label for="sector_id" class="block text-sm font-medium text-white">Sector</label>
+                <select id="sector_id" name="sector_id" required
+                    class="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md text-white">
+                    <% sectors.forEach(sector => { %>
+                        <option value="<%= sector.id %>"><%= sector.sector_name %></option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <!-- Intro Short -->
+            <div>
+                <label for="intro_short" class="block text-sm font-medium text-white">Intro Short</label>
+                <textarea id="intro_short" name="intro_short" required
+                    class="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md text-white"></textarea>
+            </div>
+
+            <!-- Summary Short -->
+            <div>
+                <label for="summary_short" class="block text-sm font-medium text-white">Summary Short</label>
+                <textarea id="summary_short" name="summary_short" required
+                    class="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md text-white"></textarea>
+            </div>
+
+            <!-- Impact -->
+            <div>
+                <label for="impact" class="block text-sm font-medium text-white">Impact</label>
+                <textarea id="impact" name="impact" required
+                    class="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md text-white"></textarea>
+            </div>
+
+            <!-- Original Source URL -->
+            <div>
+                <label for="original_source_url" class="block text-sm font-medium text-white">Original Source URL</label>
+                <input type="url" id="original_source_url" name="original_source_url" required
+                    class="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md text-white">
+            </div>
+
+            <!-- Submit Button -->
+            <div>
+                <button type="submit"
+                    class="relative inline-flex items-center justify-center p-2 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400
+                    group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
+                    Add Project
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
