@@ -3,38 +3,56 @@ require('dotenv').config();
 require('pg');
 const Sequelize = require('sequelize');
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: 'postgres',
-    dialectOptions: {
-        ssl: {
-            require: true,
-            rejectUnauthorized: false,
-        },
+const sequelize = new Sequelize(process.env.PG_CONNECTION_STRING, {
+  dialect: "postgres",
+  dialectOptions: {
+    ssl: {
+      require: true, // This will help you connect to the database with SSL
+      rejectUnauthorized: false, // Allows self-signed certificates
     },
+  },
 });
-//adding he two required models for the project and sector
-const Sector = sequelize.define('Sector', {
-    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    sector_name: Sequelize.STRING,
-}, { updatedAt: false , createdAt: false });
 
-// Project model
-const Project = sequelize.define('Project', {
-    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    sector_id: { type: Sequelize.INTEGER },
-    title: Sequelize.STRING,
-    feature_img_url: Sequelize.STRING,
-    summary_short: Sequelize.TEXT,
-    intro_short: Sequelize.TEXT,
-    impact: Sequelize.TEXT,
-    original_source_url: Sequelize.STRING,
-}, { updatedAt: false , createdAt: false });
+const Sector = sequelize.define('Sector', 
+  {
+    id: 
+    {
+      type: Sequelize.INTEGER,
+      primaryKey:true,
+      autoIncrement: true,
+    },
+    sector_name: Sequelize.STRING,
+  },
+    {
+      createdAt: false, // disable createdAt
+      updatedAt: false, // disable updatedAt
+    }
+);
+
+
+const Project = sequelize.define('Project',
+  {
+    id: 
+    {
+      type: Sequelize.INTEGER,
+      primaryKey:true,
+    },
+    title:Sequelize.STRING,
+    feature_img_url:Sequelize.STRING,
+    summary_short:Sequelize.TEXT,
+    intro_short:Sequelize.TEXT,
+    impact:Sequelize.TEXT,
+    original_source_url:Sequelize.STRING,
+  },
+  {
+    createdAt: false, // disable createdAt
+    updatedAt: false, // disable updatedAt
+  }
+);
 
 // adding the association between the two models  
 Project.belongsTo(Sector, { foreignKey: 'sector_id' });
 
-// adding the data using bulkinsert that was inserted at the bottom of this file once he data was inserted
-// the bulkinsert was removed
 
 // changing the initialize function to sync the database using sequelize.sync() function and then  using try and catch to handle the error
 const initialize = () => {
@@ -48,53 +66,95 @@ const initialize = () => {
 
 // changing the code to get all the projects from the database using findAll() function
 // and then using include to include the sector model
-const getAllProjects = () => {
-    return Project.findAll({ include: [Sector] });
-};
+async function getAllProjects() {
+  const projects = await Project.findAll({
+    include: [Sector],
+    order: [['id', 'ASC']]
+    });
+    
+  return projects.map(project => project.toJSON());
+}
 
 // changing the code to get the project by id from the database using findOne() function
-const getProjectById = (projectId) => {
-    return Project.findOne({ where: { id: projectId }, include: [Sector] })
-};
 
-
-// changing the code to get the projects by sector from the database using findAll() function
-// and then using include to include the sector model
-const getProjectsBySector = (sector) => {
-    return Project.findAll({include: [Sector], where: { 
-        '$Sector.sector_name$': { 
-          [Sequelize.Op.iLike]: `%${sector}%` 
-        }
-      }
-    })
-    .then((projects) => {
-      if (projects.length === 0) {
-        return Promise.reject(new Error('Unable to find requested projects'));
-      }
-      return projects;
-    })
-    .catch((error) => {
-      return Promise.reject(new Error(error.message));
-    });
-  };
-  
-// adding the function to add the project to the database using create() function
-// and then using Promise.resolve() to resolve the promise with no data once the project is created
-const addProject = (projectData) => {
-    return Project.create(projectData)
-      .then(() => {
-        return Promise.resolve(); // Resolve the promise with no data once the project is created
+async function getProjectByID(projectId) {
+  try {
+    const data = await Project.findOne(
+      {
+       include: [Sector],
+       where: { id:projectId } 
       })
-      .catch((err) => {
-        return Promise.reject(new Error(err.errors[0].message)); // Reject with a human-readable error message
-      });
-  };
+    
+    if (!data) {
+      // send to catch
+      throw new Error("Unable to find requested project");
+    } 
+    
+    return data.toJSON();
+
+   // catches and throws to calling function 
+  } catch(err) {
+    throw err.message;
+  }
+}
+
+async function getProjectsBySector(sector) {
+  try {
+    const projects = await Project.findAll(
+    {
+        include: [Sector], 
+        where: {
+      '$Sector.sector_name$': {
+      [Sequelize.Op.iLike]: `%${sector}%`
+      }}
+    });
+
+    // in case no project found
+    // [] is an object, triggers a resolve
+    if(!projects || projects.length == 0) {
+      throw new Error("Unable to find requested projects");
+    }
+  
+    return projects.map(project => project.toJSON());
+  } catch (err)  {
+     throw err.message;
+  }
+}
+
+
+async function addProject(projectData) {
+  try 
+  {
+    const lastID = await Project.findOne({ order: [['id', 'DESC']] });
+    const newID = lastID ? lastID.id + 1 : 1;
+
+    sequelize.sync().then(() => {
+        Project.create({
+            id:newID,
+            title: projectData.title,
+            feature_img_url: projectData.feature_img_url,
+            summary_short: projectData.summary_short,
+            intro_short: projectData.intro_short,
+            impact: projectData.impact,
+            original_source_url: projectData.original_source_url,
+            sector_id: projectData.sector_id
+        }).then(() => {
+          console.log("New project added")
+        }).catch((err) => {
+          throw err;
+        })
+    });
+
+  } catch(err) {
+    throw err.errors[0].message;
+  }
+}
 
   // adding the function to get all the sectors from the database using findAll() function
-  const getAllSectors = () => {
-    return Sector.findAll();
-};
-
+  async function getAllSectors() {
+    const data = await Sector.findAll();
+    return data.map(sector => sector.toJSON());
+}
 const editProject = (id, projectData) => {
     return Project.update(projectData, { where: { id: id } });
 };
@@ -104,4 +164,4 @@ const deleteProject = (id) => {
 };
 
 // to make the functions available to other modules
-module.exports = {initialize,getAllProjects,getProjectById,getProjectsBySector,getAllSectors,addProject,editProject,deleteProject,};
+module.exports = {initialize,getAllProjects,getProjectByID,getProjectsBySector,getAllSectors,addProject,editProject,deleteProject,};

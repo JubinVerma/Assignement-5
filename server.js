@@ -18,22 +18,6 @@ const projectData = require('./modules/projects');
 const app = express();
 const port = 3000;
 
-async function findSector(value) {
-  let sector = []; 
-  sector = await projectData.getProjectsBySector(value);
-
-  return sector;
-}
-
-async function getID(id) {
-  let project = [];
-  project = await projectData.getProjectByID(id);
-  return project;
-}
-
-Sequelize.sync();
-
-
 app.use(express.static("public"));
 app.set('view engine', 'ejs'); 
 app.set("views", __dirname + "/views");
@@ -51,133 +35,119 @@ projectData.initialize().then(() => {
 });
 
 
-app.get("/", (req, res) => {
-    res.render("home", {showSearchBar: false});
-});
+app.get("/",  (req, res) => {
+  const response =  projectData.getAllProjects();
 
+  response.then((data) => {
+    res.render("home", {projects: data,showSearchBar: true});
+  })
+
+});
 
 app.get("/about", (req, res) => {
     res.render("about", {showSearchBar: false});
 });
 
 
-app.get("/solutions/projects", async (req, res) => {
-    let projects = await projectData.getAllProjects();
-let { sector } = req.query;
+  // query values
+  app.get("/solutions/projects", async (req, res) => 
+    {
+        const collection = await projectData.getAllProjects();
+    
+        let { sector } = req.query;
+    
+        if (sector) {
+          projectData.getProjectsBySector(sector)
+            .then((data) => {
+              res.render("projects", {projects:data, showSearchBar:true});
+            })
+            .catch(() => {
+              res.status(404).render("404", {message: `No projects found for sector: ${sector}`, showSearchBar:false});
+            });
+        } else {
+          res.render("projects", {projects: collection, showSearchBar: true});
+        }
+    });
+    
 
-  if (sector) {
-    findSector(sector)
-      .then((data) => {
-        res.render("projects", {projects:data, showSearchBar:true});
-      })
-      .catch(() => {
-        res.status(404).render("404", {message: `No projects found for sector: ${sector}`, showSearchBar:false});
-      });
-  } else {
-    res.render("projects", {projects: projects, showSearchBar: true});
-  }
-});
 
-
-app.get("/solutions/projects/:id", async (req, res) => {
-    let { id } = req.params;
-    if (id) {
-      getID(id)
-        .then((data) => {
-          res.render("project", {project:data, showSearchBar:false});
-        })
-        .catch(() => {
-          res.status(404).render("404", {message: "Unable to find request project.", showSearchBar:false});
-        });
-    }
-});
-
+    app.get("/solutions/projects/:id", (req, res) => {
+      let { id } = req.params;
+      if (id) 
+        {
+        projectData.getProjectByID(id)
+          .then((data) => {
+            res.render("project", {project:data, showSearchBar:false});
+          })
+          .catch(() => {
+            res.status(404).render("404", {message: "Unable to find request project.", showSearchBar:false});
+          });
+      }
+    });
 
 
 
 /////////////////////assignement 5 new additions
 
-
-app.get('/solutions/addProject', (req, res) => {
-  projectData.getAllSectors()
-      .then(sectors => {
-          res.render('addProject', { sectors: sectors });
-      })
-      .catch(err => {
-          console.error("Error fetching sectors:", err);
-          res.status(500).render('500', { message: "Internal server error." });
-      });
+app.get("/solutions/addProject", async (req, res) => {
+  const sectorJSON = await projectData.getAllSectors();
+  res.render("addProject", {sectors: sectorJSON, showSearchBar: false});
 });
 
-app.post('/solutions/addProject', (req, res) => {
-  const newProjectData = {
-      title: req.body.title,
-      feature_img_url: req.body.feature_img_url,
-      sector_id: req.body.sector_id,
-      intro_short: req.body.intro_short,
-      summary_short: req.body.summary_short,
-      impact: req.body.impact,
-      original_source_url: req.body.original_source_url
-  };
+app.post("/solutions/addProject", (req, res) => 
+{
+  const response = projectData.addProject(req.body);
+  
+  response.then(() => {
+    res.redirect('/solutions/projects');
+  }).catch((err) => {
+    res.render("500", { message: `I'm sorry, but we have encountered the following error: ${err}` });
+  })
+})
 
-  projectData.addProject(newProjectData)
-      .then(() => {
-          res.redirect('/solutions/projects');
+app.get("/solutions/editProject/:id", (req, res) => {
+    const projectJSON = projectData.getProjectByID(req.params.id);
+    const sectorJSON = projectData.getAllSectors();
+
+    // check if both resolves
+    Promise.allSettled([projectJSON, sectorJSON])
+      .then((source) => {
+        const projectData = source.map(promise => promise.value)[0];
+        const sectorData = source.map(promise => promise.value)[1];
+        res.render("editProject", { sectors: sectorData, project: projectData, showSearchBar:false });
+
       })
-      .catch(err => {
-          console.error("Error adding project:", err);
-          res.status(500).render('500', { message: "Internal server error." });
-      });
+      .catch((err) => {
+        res.status(404).render("404", { message: err.errors[0].message });
+      })
 });
 
-app.get('/solutions/editProject/:id', (req, res) => {
-  const projectId = parseInt(req.params.id);
 
-  Promise.all([projectData.getProjectById(projectId), projectData.getAllSectors()])
-      .then(([project, sectors]) => {
-          res.render('editProject', { project: project, sectors: sectors });
-      })
-      .catch(err => {
-          console.error("Error fetching project or sectors:", err);
-          res.status(500).render('500', { message: "Internal server error." });
-      });
+app.post("/solutions/editProject", (req,res) => 
+{
+  const id = req.body.id;
+  const data = req.body;
+
+  const response = projectData.editProject(id, data);
+  response.then(() => {
+    console.log("Successfully edited Project " + data.title);
+    res.redirect('/solutions/projects');
+  }).catch((err) => {
+    res.render("500", { message: `I'm sorry, but we have encountered the following error: ${err}` , showSearchBar: false});
+  })
 });
 
-// Add a route to update a project based on the project ID and in case of error, display a 500 error page 
-app.post('/solutions/editProject', (req, res) => {
-  const projectId = req.body.id;
-  const updatedProjectData = {
-      title: req.body.title,
-      feature_img_url: req.body.feature_img_url,
-      sector_id: req.body.sector_id,
-      intro_short: req.body.intro_short,
-      summary_short: req.body.summary_short,
-      impact: req.body.impact,
-      original_source_url: req.body.original_source_url
-  };
+app.get("/solutions/deleteProject/:id", (req,res) => {
+    const response = projectData.deleteProject(req.params.id);
 
-  projectData.editProject(projectId, updatedProjectData)
-      .then(() => {
-          res.redirect('/solutions/projects');
-      })
-      .catch(err => {
-          console.error("Error updating project:", err);
-          res.status(500).render('500', { message: "Internal server error." });
-      });
-});
+    response.then(() => {
+      console.log("delete project successfully");
+      res.redirect("/solutions/projects");
+    }).catch((err) => {
+      res.render("500", { message: `I'm sorry, but we have encountered the following error: ${err}` , showSearchBar: false });
+    })
+})
 
-app.get('/solutions/deleteProject/:id', (req, res) => {
-  const projectId = parseInt(req.params.id);
-
-  projectData.deleteProject(projectId)
-      .then(() => {
-          res.redirect('/solutions/projects');
-      })
-      .catch(err => {
-          console.error("Error deleting project:", err);
-          res.status(500).render('500', { message: "Internal server error." });
-      });
-});
 
 app.get("/500", (req, res) => {
   res.status(500).render('500', { message: "I'm sorry, there might be an issue with our servers. Please check back later.", showSearchBar: false });
