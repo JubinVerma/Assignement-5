@@ -1,8 +1,9 @@
-//This will allow us to access the value of PG_CONNECTION_STRING from the ".env" file 
 require('dotenv').config();
 require('pg');
+
 const Sequelize = require('sequelize');
 
+// set up sequelize to point to our postgres database
 const sequelize = new Sequelize(process.env.PG_CONNECTION_STRING, {
   dialect: "postgres",
   dialectOptions: {
@@ -29,7 +30,6 @@ const Sector = sequelize.define('Sector',
     }
 );
 
-
 const Project = sequelize.define('Project',
   {
     id: 
@@ -50,32 +50,100 @@ const Project = sequelize.define('Project',
   }
 );
 
-// adding the association between the two models  
-Project.belongsTo(Sector, { foreignKey: 'sector_id' });
+Project.belongsTo(Sector, {foreignKey: 'sector_id'});
 
-
-// changing the initialize function to sync the database using sequelize.sync() function and then  using try and catch to handle the error
-const initialize = () => {
-    return sequelize.sync()
-        .then(() => console.log('Database initialized successfully.'))
-        .catch(err => {
-            console.error('Error initializing database:', err);
-            throw err;
-        });
-};
-
-// changing the code to get all the projects from the database using findAll() function
-// and then using include to include the sector model
-async function getAllProjects() {
-  const projects = await Project.findAll({
-    include: [Sector],
-    order: [['id', 'ASC']]
-    });
-    
-  return projects.map(project => project.toJSON());
+async function initialize() {
+  try {
+    await sequelize.sync();
+    console.log("Sync success");
+  } catch (err) {
+    console.error("Failed to sync ending with: ", err);
+  }
 }
 
-// changing the code to get the project by id from the database using findOne() function
+async function getAllProjects() {
+    const projects = await Project.findAll({
+      include: [Sector],
+      order: [['id', 'ASC']]
+      });
+      
+    return projects.map(project => project.toJSON());
+}
+
+async function getAllSectors() {
+    const data = await Sector.findAll();
+    return data.map(sector => sector.toJSON());
+}
+
+async function addProject(projectData) {
+    try 
+    {
+      const lastID = await Project.findOne({ order: [['id', 'DESC']] });
+      const newID = lastID ? lastID.id + 1 : 1;
+
+      sequelize.sync().then(() => {
+          Project.create({
+              id:parseInt(newID),
+              title: projectData.title,
+              feature_img_url: projectData.feature_img_url,
+              summary_short: projectData.summary_short,
+              intro_short: projectData.intro_short,
+              impact: projectData.impact,
+              original_source_url: projectData.original_source_url,
+              sector_id: projectData.sector_id
+          }).then(() => {
+            console.log("New project added")
+          }).catch((err) => {
+            throw err;
+          })
+      });
+
+    } catch(err) {
+      throw err.errors[0].message;
+    }
+}
+
+function editProject(Newid, projectData) {
+  try {
+    return sequelize.sync().then(() => {
+      return Project.update(
+        {
+            title: projectData.title,
+            feature_img_url: projectData.feature_img_url,
+            summary_short: projectData.summary_short,
+            intro_short: projectData.intro_short,
+            impact: projectData.impact,
+            original_source_url: projectData.original_source_url,
+            sector_id: projectData.sector_id
+        }, 
+        {
+            where: { id: parseInt(Newid) } 
+            // only update project with input id
+        })
+        .then(() => {
+            console.log("then in edit project");
+        }).catch((err) => {
+            console.log("catch in edit project");
+            throw err;
+        });
+    });
+
+  } catch(err) {
+    throw err.errors[0].message;
+  }
+}
+
+async function deleteProject(id) {
+  try 
+  {
+    await Project.destroy({
+      where: {id:parseInt(id)}
+    });
+  } catch(err) {
+    return err.errors[0].message;
+  }
+
+}
 
 async function getProjectByID(projectId) {
   try {
@@ -121,47 +189,13 @@ async function getProjectsBySector(sector) {
   }
 }
 
-
-async function addProject(projectData) {
-  try 
-  {
-    const lastID = await Project.findOne({ order: [['id', 'DESC']] });
-    const newID = lastID ? lastID.id + 1 : 1;
-
-    sequelize.sync().then(() => {
-        Project.create({
-            id:newID,
-            title: projectData.title,
-            feature_img_url: projectData.feature_img_url,
-            summary_short: projectData.summary_short,
-            intro_short: projectData.intro_short,
-            impact: projectData.impact,
-            original_source_url: projectData.original_source_url,
-            sector_id: projectData.sector_id
-        }).then(() => {
-          console.log("New project added")
-        }).catch((err) => {
-          throw err;
-        })
-    });
-
-  } catch(err) {
-    throw err.errors[0].message;
-  }
-}
-
-  // adding the function to get all the sectors from the database using findAll() function
-  async function getAllSectors() {
-    const data = await Sector.findAll();
-    return data.map(sector => sector.toJSON());
-}
-const editProject = (id, projectData) => {
-    return Project.update(projectData, { where: { id: id } });
+module.exports = {
+  initialize,
+  getAllProjects,
+  getProjectByID,
+  getProjectsBySector,
+  getAllSectors,
+  addProject,
+  editProject,
+  deleteProject
 };
-
-const deleteProject = (id) => {
-    return Project.destroy({ where: { id: id } });
-};
-
-// to make the functions available to other modules
-module.exports = {initialize,getAllProjects,getProjectByID,getProjectsBySector,getAllSectors,addProject,editProject,deleteProject,};

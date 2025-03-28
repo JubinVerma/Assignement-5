@@ -49,6 +49,10 @@
           <div class="author text-sm italic"></div>
 
           <p>
+            <a class="btn btn-info btn-outline btn-sm" href="/solutions/editProject/<%= project.id %>">Edit Project</a>
+          </p>
+
+          <p>
             <a class="btn btn-outline btn-sm" href="#" onclick="history.back(); return false;">RETURN</a>
           </p>
           <br>
@@ -56,7 +60,7 @@
 
     <script>  
         document.addEventListener("DOMContentLoaded",  ()=>{
-     
+        /* TODO: "fetch" the data at: https://dummyjson.com/quotes/random and update an element in the DOM with the "quote" and "author" */
         fetch("https://dummyjson.com/quotes/random")
         .then((response) => response.json()).then((data) => {
             document.querySelector(".quote").textContent = `"${data.quote}"`;
