@@ -62,7 +62,7 @@ projectData.initialize()
 app.get("/", (req, res) => {
   projectData.getAllProjects()
     .then((projects) => {
-      res.render("home", { projects, showSearchBar: true });
+      res.render("home", { projects, showSearchBar: false });
     });
 });
 
