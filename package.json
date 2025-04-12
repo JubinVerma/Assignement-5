@@ -13,9 +13,12 @@
   "description": "",
   "dependencies": {
     "autoprefixer": "^10.4.20",
-    "dotenv": "^16.4.7",
+    "bcryptjs": "^3.0.2",
+    "client-sessions": "^0.8.0",
+    "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
+    "mongoose": "^8.13.2",
     "pg": "^8.14.1",
     "pg-hstore": "^2.3.4",
     "postcss": "^8.5.2",

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Climate Solutions</title>
+    <link rel="stylesheet" href="/css/main.css" />
+  </head>
+  <body>
+    <%- include('partials/navbar', {page:'/login'}) %>
+    <!-- container-->
+    <div class="container mx-auto">
+      <div class="grid grid-cols-1 mb-4 mx-6">
+        <div class="hero min-h-72 bg-neutral-800 rounded-2xl mt-4">
+          <div class="hero-content text-center">
+            <div class="max-w-md">
+                <div class="text-center">
+                    <h1 class="text-4xl font-bold">User History</h1>
+                    <p class="py-6">Welcome <%= session.user.userName %> (<%= session.user.email %>)</p>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4">
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                  <thead>
+                    <tr>
+                      <th>Login Date/Time</th>
+                      <th>Client Information</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% session.user.loginHistory.forEach(history => { %>
+                    <tr>
+                      <td><%= history.dateTime %></td>
+                      <td><%= history.userAgent %></td>
+                    </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+         
+        </div>
+      
+    </div> <!-- container -->
+
+  </body>
+</html>

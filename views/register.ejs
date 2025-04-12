@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Climate Solutions</title>
+    <link rel="stylesheet" href="/css/main.css" />
+  </head>
+  <body>
+    <%- include('partials/navbar', {page:'/register'}) %>
+    <!-- container-->
+    <div class="container mx-auto">
+      <div class="grid grid-cols-1 mb-4 mx-6">
+        <div class="hero min-h-72 bg-neutral-800 rounded-2xl mt-4">
+          <div class="hero-content text-center">
+            <div class="max-w-md">
+              <h1 class="text-5xl font-bold">Register</h1>
+              <p class="py-6">
+                Please provide your credentials below
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <% if(successMessage == "") { %>
+      <form method="post" action="/register" width="100%" class="m-6" >
+        <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4">
+        <div>
+            <p class="p-2">User Name</p>
+            <input type="text" class="input bg-neutral-800 w-full" required name="userName" placeholder="User Name" value="<%= userName %>"/>
+        </div>
+  
+        <div>
+            <p class="p-2">Password</p>
+            <input name="password" type="password" class="input bg-neutral-800 w-full" required placeholder="Password"/>
+        </div>
+
+        <div>
+            <p class="p-2">Confirm Password</p>
+            <input name="password2" type="password" class="input bg-neutral-800 w-full" required placeholder="Confirm Password"/>
+        </div>
+
+        <div>
+            <p class="p-2">Email</p>
+            <input name="email" type="email" class="input bg-neutral-800 w-full" required placeholder="Email Address"/>
+        </div>
+         
+        </div>
+      <div class="mt-7">
+          <button type="submit" class="btn btn-soft btn-success w-32 btn-md" value="Register">Register</button>
+      </div>
+      </form>
+      <% } %>
+
+      <% if (errorMessage) { %>
+        <div role="alert" class="alert alert-error m-6 h-5/6 w-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span><%= errorMessage %></span>
+            </div>
+    <% } %>
+
+
+    <% if (successMessage)  { %>
+        <div class="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span><%= successMessage %></span>
+        </div><br />
+        <a href="/login" class="btn btn-success">
+        Proceed to Log in
+        </a>
+
+    <% } %>
+    </div> <!-- container -->
+    
+  </body>
+</html>

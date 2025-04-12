@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Climate Solutions</title>
+    <link rel="stylesheet" href="/css/main.css" />
+  </head>
+  <body>
+    <%- include('partials/navbar', {page:'/login'}) %>
+    <!-- container-->
+    <div class="container mx-auto">
+      <div class="grid grid-cols-1 mb-4 mx-6">
+        <div class="hero min-h-72 bg-neutral-800 rounded-2xl mt-4">
+          <div class="hero-content text-center">
+            <div class="max-w-md">
+              <h1 class="text-5xl font-bold">Log In</h1>
+              <p class="py-6">
+                Please provide your credentials below
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form method="post" action="/login" width="100%" class="m-6" >
+        <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4">
+        <div>
+            <p class="p-2">User Name</p>
+            <input type="text" class="input bg-neutral-800 w-full" required name="userName" placeholder="User Name" value="<%= userName %>"/>
+        </div>
+  
+        <div>
+            <p class="p-2">Password</p>
+            <input name="password" type="password" class="input bg-neutral-800 w-full" required placeholder="Password"/>
+        </div>
+         
+        </div>
+      <div class="mt-7">
+          <button type="submit" class="btn btn-soft btn-success w-32 btn-md" value="Login">Login</button>
+      </div>
+      </form>
+
+      <% if (errorMessage) { %>
+        <div role="alert" class="alert alert-error m-6 h-5/6 w-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span><%= errorMessage %></span>
+            </div>
+    <% } %>
+    </div> <!-- container -->
+
+
+    
+  </body>
+</html>
